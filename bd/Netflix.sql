@@ -44,7 +44,39 @@ INSERT INTO actors (name,lastname,country,birthday) VALUES
 ("John","Travolta","Estados Unidos","1954-02-18");
 
 
+SELECT * FROM movies;
 
+SELECT movies.title, movies.genre
+FROM movies
+WHERE movies.movieYear > 1990;
+
+SELECT *
+FROM movies
+WHERE movies.cathegory LIKE "%Top 10%";
+
+UPDATE movies SET movieYear = 1997 WHERE movies.idMovies = 2;
+
+SELECT * FROM movies;
+
+SELECT * 
+FROM actors
+WHERE actors.birthday >= "1952-01-01" AND actors.birthday <= "1954-12-31";
+
+SELECT actors.name, actors.lastname
+FROM actors
+WHERE actors.country = 'Estados Unidos';
+
+SELECT *
+FROM users
+WHERE users.plan_details LIKE '%standard%';
+
+SELECT * FROM users;
+
+DELETE FROM users WHERE name LIKE 'M%';
+
+ALTER TABLE actors ADD image TEXT;
+
+SELECT * FROM actors;
 
 
 
