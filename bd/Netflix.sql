@@ -44,7 +44,7 @@ INSERT INTO actors (name,lastname,country,birthday) VALUES
 ("John","Travolta","Estados Unidos","1954-02-18");
 
 
-SELECT * FROM movies;
+SELECT * FROM movies,actors,users;
 
 SELECT movies.title, movies.genre
 FROM movies
@@ -77,6 +77,30 @@ DELETE FROM users WHERE name LIKE 'M%';
 ALTER TABLE actors ADD image TEXT;
 
 SELECT * FROM actors;
+
+CREATE TABLE movies_has_users (
+fkMovies int NOT NULL,
+fkUsers int NOT NULL,
+idMoviesUsers int NOT NULL PRIMARY KEY auto_increment
+);
+-- Relacionar dos tablas que parten de una relación anterior entre otras -- 
+ALTER TABLE movies_has_users ADD foreign key (fkMovies)
+REFERENCES movies (idMovies);
+ALTER TABLE movies_has_users ADD foreign key (fkUsers)
+REFERENCES users (idUser);
+
+
+CREATE TABLE actors_has_movies ( 
+fkActors int NOT NULL,
+fkMovies int NOT NULL,
+idActorsMovies int NOT NULL PRIMARY KEY auto_increment
+);
+
+ALTER TABLE actors_has_movies ADD foreign key (fkActors)
+REFERENCES actors (idActor);
+ALTER TABLE actors_has_movies ADD foreign key (fkMovies)
+REFERENCES movies (idMovies);
+
 
 
 
