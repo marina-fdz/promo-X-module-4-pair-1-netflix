@@ -34,7 +34,7 @@ Por favor marca a continuación los ejercicios que hayáis terminado:
 **4.5 Express JS con MySQL:**
 
 - [x] 1. Pide todas las películas
-- [ ] 2. Servidor de estáticos para React
+- [x] 2. Servidor de estáticos para React
 - [ ] 3. Servidor de estáticos para las fotos
 
 **4.6 Peticiones con parámetros:**

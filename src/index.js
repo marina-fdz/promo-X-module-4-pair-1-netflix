@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-
+const mysql = require('mysql2/promise');
 
 
 // create and config server
@@ -14,43 +14,39 @@ server.listen(serverPort, () => {
   console.log(`Server listening at http://localhost:${serverPort}`);
 });
 
+// Conectarse a la base de datos
+async function connectToDatabase() {
+  const connection = await mysql.createConnection({
+    host: 'sql.freedb.tech',
+    user: 'freedb_adminnesflicompis',
+    password: 'rXw%Axbw9N9$BJJ',
+    database: 'freedb_nesflicompis'
+  });
+  await connection.connect();
+  return connection;
+}
 
+// Escribir en la base de datos
+
+
+
+
+//crear endpoint
+
+server.get('/movies', async (req, res) => {
+  
+  const conn = await connectToDatabase();
+  let sql = 'SELECT idMovies as id, title, genre, image FROM movies;';
+  const [results] = await conn.query(sql); // en el caso de hacer un select, query nos devuelve un array con en la posicion 0 los datos de la tabla, y en la posición 1 la información de la estructura de la tabla (campos, tipo de dato)
+  res.json({
+    success: true,
+    movies:  results
+  })
+  conn.end();
+});
 
 
 // Para abrir el front desde el back chuleta:
 
 const staticUrl= "./src/public";
 server.use(express.static(staticUrl));
-
-//crear endpoint
-
-server.get('/movies', (req, res) => {
-  const fakeMovies = [
-    {
-      id: 1,
-      title: "Wonder Woman",
-      genre: "Action",
-      image:
-        "https://cdn.hobbyconsolas.com/sites/navi.axelspringer.es/public/media/image/2022/12/gal-gadot-como-wonder-woman-universo-extendido-dc-2895594.jpg?tf=3840x",
-      category: "Superhero",
-      year: 2017,
-      director: "Patty Jenkins",
-    },
-    {
-      id: 2,
-      title: "Inception",
-      genre: "Science Fiction",
-      image:
-        "https://m.media-amazon.com/images/S/pv-target-images/e826ebbcc692b4d19059d24125cf23699067ab621c979612fd0ca11ab42a65cb._SX1080_FMjpg_.jpg",
-      category: "Thriller",
-      year: 2010,
-      director: "Christopher Nolan",
-    }
-   
-  ];
-  res.json({
-    success: true,
-    movies:  fakeMovies
-  })
-
-});
