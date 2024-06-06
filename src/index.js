@@ -36,7 +36,7 @@ async function connectToDatabase() {
 server.get('/movies', async (req, res) => {
   
   const conn = await connectToDatabase();
-  let sql = 'SELECT idMovies as id, title, genre, image FROM movies;';
+  let sql = `SELECT idMovies as id, title, genre, image FROM movies; HAVING genre = ${req.query.genre};`;
   const [results] = await conn.query(sql); // en el caso de hacer un select, query nos devuelve un array con en la posicion 0 los datos de la tabla, y en la posición 1 la información de la estructura de la tabla (campos, tipo de dato)
   res.json({
     success: true,
