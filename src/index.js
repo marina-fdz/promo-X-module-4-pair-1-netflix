@@ -7,6 +7,8 @@ const mysql = require('mysql2/promise');
 const server = express();
 server.use(cors());
 server.use(express.json());
+require('dotenv').config();
+server.set('view engine', 'ejs');
 
 // init express aplication
 const serverPort = 4000;
@@ -17,10 +19,10 @@ server.listen(serverPort, () => {
 // Conectarse a la base de datos
 async function connectToDatabase() {
   const connection = await mysql.createConnection({
-    host: 'sql.freedb.tech',
-    user: 'freedb_adminnesflicompis',
-    password: 'rXw%Axbw9N9$BJJ',
-    database: 'freedb_nesflicompis'
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASS,
+    database: process.env.DB_NAME
   });
   await connection.connect();
   return connection;
@@ -36,12 +38,32 @@ async function connectToDatabase() {
 server.get('/movies', async (req, res) => {
   
   const conn = await connectToDatabase();
-  let sql = `SELECT idMovies as id, title, genre, image FROM movies; HAVING genre = ${req.query.genre};`;
+  
+  if (req.query.genre === ''){
+    let sql = 'SELECT * FROM movies ORDER BY title DESC;';
   const [results] = await conn.query(sql); // en el caso de hacer un select, query nos devuelve un array con en la posicion 0 los datos de la tabla, y en la posición 1 la información de la estructura de la tabla (campos, tipo de dato)
   res.json({
     success: true,
     movies:  results
-  })
+  })} else {
+  let sql = `SELECT * FROM movies WHERE genre = ? ORDER BY title;`;
+  const [results] = await conn.query(sql , req.query.genre); 
+  res.json({
+    success: true,
+    movies:  results
+  })}
+  conn.end();
+});
+
+//endpoint detail
+
+server.get('/movies/:idMovies', async (req, res) => {
+  const conn = await connectToDatabase();
+  const { idMovies } = req.params;
+  let sql = 'SELECT * FROM movies WHERE idMovies = ?;';
+  const [results] = await conn.query(sql, [idMovies]);
+  res.render('movie', { movie: results[0] });
+  console.log('params', idMovies);
   conn.end();
 });
 

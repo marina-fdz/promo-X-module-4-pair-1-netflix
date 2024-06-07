@@ -9,7 +9,7 @@ const MoviesList = ({ movies }) => {
     return movies.map((movie) => {
       console.log(movie.image);
       return (
-        <li key={movie.id} className="card">
+        <li key={movie.idMovies} className="card">
           <img
             className="card__img"
             src={movie.image}
