@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
+const bcrypt = require("bcrypt");
 
 
 // create and config server
@@ -66,6 +67,34 @@ server.get('/movies/:idMovies', async (req, res) => {
   console.log('params', idMovies);
   conn.end();
 });
+
+// endpoint registro
+
+server.post("/sign-up", async (req, res)=> {
+
+// conectar con la BD
+const conn = await connectToDatabase();
+//recoger datos user
+const {email, password} = req.body;
+//comprobar que el user no exixte en la BD
+const selectEmail = 'SELECT * FROM users WHERE email = ?';
+const [emailResult] = await conn.query(selectEmail,[email]);
+
+//El usuario NO existe ---> INSERT INTO 
+if (emailResult.length === 0){
+  const hashedPassword = await bcrypt.hash(password, 10);
+const insertUser =
+'INSERT INTO users (email, password) values (?, ?)';
+const [newUser] = await conn.query(insertUser, [email, hashedPassword]);
+res.status(201).json({ success: true, id: newUser.insertId});
+}
+else {
+res.status(200).json({ success: false, message: 'usuario ya existe'})
+}
+//cerramos la conexión
+await conn.end();
+});
+
 
 
 // Para abrir el front desde el back chuleta:
