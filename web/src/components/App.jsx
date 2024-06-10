@@ -102,13 +102,14 @@ const App = () => {
     setSignUpErrorMessage("");
     // Enviamos los datos al API
     apiUser.sendSignUpToApi(data).then((response) => {
+      console.log('response', response);
       if (response.success === true) {
         setUserId(response.userId);
         // Si la usuaria introduce bien sus datos redireccionamos desde la página de signup al inicio de la página
         router.redirect("/");
       } else {
         // Si la usuaria introduce mal sus datos guardamos el error que nos devuelve el API para que se pinte en la página
-        setSignUpErrorMessage(response.errorMessage);
+        setSignUpErrorMessage(response.message);
       }
     });
   };

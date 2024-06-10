@@ -2,20 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql2/promise');
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 
 
 // create and config server
 const server = express();
 server.use(cors());
-server.use(express.json());
+server.use(express.json({ limit: '15mb'}));
 require('dotenv').config();
 server.set('view engine', 'ejs');
 
-// init express aplication
-const serverPort = 4000;
-server.listen(serverPort, () => {
-  console.log(`Server listening at http://localhost:${serverPort}`);
-});
 
 // Conectarse a la base de datos
 async function connectToDatabase() {
@@ -28,9 +24,6 @@ async function connectToDatabase() {
   await connection.connect();
   return connection;
 }
-
-// Escribir en la base de datos
-
 
 
 
@@ -56,8 +49,8 @@ server.get('/movies', async (req, res) => {
   conn.end();
 });
 
-//endpoint detail
 
+//endpoint detail
 server.get('/movies/:idMovies', async (req, res) => {
   const conn = await connectToDatabase();
   const { idMovies } = req.params;
@@ -69,17 +62,14 @@ server.get('/movies/:idMovies', async (req, res) => {
 });
 
 // endpoint registro
-
 server.post("/sign-up", async (req, res)=> {
-
 // conectar con la BD
 const conn = await connectToDatabase();
 //recoger datos user
-const {email, password} = req.body;
+const { email, password } = req.body;
 //comprobar que el user no exixte en la BD
 const selectEmail = 'SELECT * FROM users WHERE email = ?';
 const [emailResult] = await conn.query(selectEmail,[email]);
-
 //El usuario NO existe ---> INSERT INTO 
 if (emailResult.length === 0){
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -92,12 +82,48 @@ else {
 res.status(200).json({ success: false, message: 'usuario ya existe'})
 }
 //cerramos la conexión
-await conn.end();
+conn.end();
 });
 
 
+//endpoint login
 
-// Para abrir el front desde el back chuleta:
+server.post('/login'), async (req, res) => {
+  //conectar con la BD
+  const conn = await connectToDatabase();
+  //recoger los datos del usuario por el body
+  const { email, password } = req.body;
+  //hacer la comprobación de que el email ya exista en la BD
+  const selectUser = 'SELECT * FROM users WHERE email = ?;';
+  const [resultUser] = await conn.query(selectUser, [email]);
+  //si el email ya existe --> se comprueba que la contraseña encriptada coincide con la del usuario --> bcrypt
+  if(resultUser.length !== 0){
+    const isSamePassword = await bcrypt.compare(password, resultUser[0].password);
+    if(isSamePassword){
+      //si la contraseña coincide-->creo token
+      const infoToken = { email: resultUser[0].email, id: resultUser[0].idUser };
+      const token = jwt.sign(infoToken, 'secret-key', {expiresIn: '1h'});
+      res.status(201).json({success: true, token: token});
+    }else{
+      //sino --> enviar msj de contraseña incorrecta
+      res.status(400).json({ success: false, message: 'contraseña incorrecta' });
+    }
+  } else {
+    res.status(400).json({ success: false, message: 'email no registrado' });
+  }
+
+}
+
+
+// init express aplication
+const serverPort = 4000;
+server.listen(serverPort, () => {
+  console.log(`Server listening at http://localhost:${serverPort}`);
+});
+
+// servidores estáticos
 
 const staticUrl= "./src/public";
 server.use(express.static(staticUrl));
+
+server.use(express.static('./src/css'));

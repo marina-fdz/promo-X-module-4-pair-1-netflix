@@ -20,6 +20,10 @@ email varchar (45) not null,
 plan_details varchar (45) not null
 );
 
+ALTER TABLE users modify user varchar(45);
+ALTER TABLE users modify name varchar(45);
+ALTER TABLE users modify plan_details varchar(45);
+
 CREATE TABLE actors (
 idActor int auto_increment primary key,
 name varchar (45) not null,
@@ -91,7 +95,7 @@ REFERENCES users (idUser);
 
 
 CREATE TABLE actors_has_movies ( 
-fkActors int NOT NULL,
+fkActors int NOT NULL,movies_has_users
 fkMovies int NOT NULL,
 idActorsMovies int NOT NULL PRIMARY KEY auto_increment
 );
