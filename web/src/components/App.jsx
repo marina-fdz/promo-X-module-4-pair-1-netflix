@@ -81,6 +81,7 @@ const App = () => {
     setLoginErrorMessage("");
     // Enviamos los datos al API
     apiUser.sendLoginToApi(loginData).then((response) => {
+      console.log('app', response);
       if (response.success === true) {
         setUserId(response.userId);
         // Si la usuaria introduce bien sus datos redireccionamos desde la página de login al inicio de la página

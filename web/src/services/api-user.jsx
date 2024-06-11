@@ -61,7 +61,7 @@ const getProfileFromApi = (userId) => {
   console.log("Se están pidiendo datos del profile del usuario:", userId);
   // CAMBIA ESTE FETCH PARA QUE APUNTE A UN ENDPOINT DE TU SERVIDOR, PIENSA SI DEBE SER GET O POST, PIENSA QUÉ DATOS DEBES ENVIAR, ETC
   return fetch(
-    "//beta.adalab.es/curso-intensivo-fullstack-recursos/apis/netflix-v1/empty.json"
+    "http://localhost:4000/user/profile", 
   )
     .then((response) => response.json())
     .then(() => {

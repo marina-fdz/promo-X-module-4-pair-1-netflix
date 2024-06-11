@@ -12,6 +12,13 @@ server.use(express.json({ limit: '15mb'}));
 require('dotenv').config();
 server.set('view engine', 'ejs');
 
+// init express aplication
+const serverPort = 4000;
+server.listen(serverPort, () => {
+  console.log(`Server listening at http://localhost:${serverPort}`);
+});
+
+
 
 // Conectarse a la base de datos
 async function connectToDatabase() {
@@ -88,17 +95,22 @@ conn.end();
 
 //endpoint login
 
-server.post('/login'), async (req, res) => {
+server.post('/login', async (req, res) => {
   //conectar con la BD
   const conn = await connectToDatabase();
   //recoger los datos del usuario por el body
   const { email, password } = req.body;
   //hacer la comprobación de que el email ya exista en la BD
+  console.log('body', req.body);
   const selectUser = 'SELECT * FROM users WHERE email = ?;';
   const [resultUser] = await conn.query(selectUser, [email]);
   //si el email ya existe --> se comprueba que la contraseña encriptada coincide con la del usuario --> bcrypt
   if(resultUser.length !== 0){
     const isSamePassword = await bcrypt.compare(password, resultUser[0].password);
+    res.json({
+      success: true,
+      userId: "id_de_la_usuaria_encontrada"
+    });
     if(isSamePassword){
       //si la contraseña coincide-->creo token
       const infoToken = { email: resultUser[0].email, id: resultUser[0].idUser };
@@ -109,17 +121,32 @@ server.post('/login'), async (req, res) => {
       res.status(400).json({ success: false, message: 'contraseña incorrecta' });
     }
   } else {
-    res.status(400).json({ success: false, message: 'email no registrado' });
+    res.status(400).json({
+      success: false,
+      errorMessage: "Usuaria/o no encontrada/o"
+    });
+    
   }
 
+});
+
+
+//endpoint getprofile
+
+function authorize(req, res, next){
+  const tokenString = req.headers.authorization;
+  if(!tokenString){
+    res.status(400).json({ success: false, message: 'No estás autorizado'});
+  }else{
+    const token = tokenString.split(' ')[1];
+  }
 }
 
 
-// init express aplication
-const serverPort = 4000;
-server.listen(serverPort, () => {
-  console.log(`Server listening at http://localhost:${serverPort}`);
-});
+server.get(['/user/profile'], authorize, async (req, res) => {
+
+})
+
 
 // servidores estáticos
 
