@@ -107,10 +107,7 @@ server.post('/login', async (req, res) => {
   //si el email ya existe --> se comprueba que la contraseña encriptada coincide con la del usuario --> bcrypt
   if(resultUser.length !== 0){
     const isSamePassword = await bcrypt.compare(password, resultUser[0].password);
-    res.json({
-      success: true,
-      userId: "id_de_la_usuaria_encontrada"
-    });
+  
     if(isSamePassword){
       //si la contraseña coincide-->creo token
       const infoToken = { email: resultUser[0].email, id: resultUser[0].idUser };
@@ -138,13 +135,27 @@ function authorize(req, res, next){
   if(!tokenString){
     res.status(400).json({ success: false, message: 'No estás autorizado'});
   }else{
+    //verificamos que la clave es correcta
+    try{
+
     const token = tokenString.split(' ')[1];
+    const verifiedToken = jwt.verify(token, 'secret-key');
+    req.infoToken = verifiedToken;
+
+    }
+    catch(error){
+      res.status(400).json({ success: false, message: error });
+    
+    }
+    next();
+    
+
   }
 }
 
-
-server.get(['/user/profile'], authorize, async (req, res) => {
-
+//nos trae los datos de la usuaria
+server.get('/user/profile', authorize, async (req, res) => {
+  res.status(200).json({ success: true, message: req.infoToken });
 })
 
 
