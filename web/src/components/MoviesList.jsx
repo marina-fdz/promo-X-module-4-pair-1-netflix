@@ -10,6 +10,7 @@ const MoviesList = ({ movies }) => {
       console.log(movie.image);
       return (
         <li key={movie.idMovies} className="card">
+          <a href={`http://localhost:4000/movies/${movie.idMovies}`}>
           <img
             className="card__img"
             src={movie.image}
@@ -17,6 +18,7 @@ const MoviesList = ({ movies }) => {
           />
           <h3 className="card__title">{movie.title}</h3>
           <p className="card__description">Género: {movie.genre}</p>
+          </a>
         </li>
       );
     });
